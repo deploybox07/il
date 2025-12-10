@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <title>OBJ Loader with Collisions</title>
     <style>
-        body { margin: 0; }
+        body { margin: 0; background: black; } /* Black background */
         canvas { display: block; }
+        #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; font-family: Arial; }
     </style>
 </head>
 <body>
+    <div id="loading">Loading model...</div> <!-- Loading indicator -->
     <script type="module">
-        import * as THREE from './lib/three.module.js';  // Adjust if your libs path differs
+        import * as THREE from './lib/three.module.js';  // Corrected path: 'lib' (no 's')
         import { OBJLoader } from './lib/OBJLoader.js';
         import { MTLLoader } from './lib/MTLLoader.js';
         import * as CANNON from './lib/cannon-es.js';
@@ -59,6 +61,7 @@
         }, undefined, (err) => {
             console.warn('No MTL loaded, using defaults:', err);
             loadObj(null); // Proceed without MTL
+            hideLoading(); // Hide loading on error
         });
 
         function loadObj(materials) {
@@ -81,7 +84,11 @@
                         world.addBody(body);
                     }
                 });
-            }, undefined, (err) => console.error('OBJ load error:', err));
+                hideLoading(); // Hide loading on success
+            }, undefined, (err) => {
+                console.error('OBJ load error:', err);
+                hideLoading(); // Hide on error
+            });
         }
 
         // Add a dynamic sphere to test collisions
@@ -142,6 +149,12 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Function to hide loading indicator
+        function hideLoading() {
+            const loadingDiv = document.getElementById('loading');
+            if (loadingDiv) loadingDiv.style.display = 'none';
+        }
     </script>
 </body>
 </html>
